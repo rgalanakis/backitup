@@ -36,7 +36,7 @@ backupgdrive = r"C:\Users\<username>\Google Drive\personalbackups"
 uploads = [
     backitup.make_upload_s3(awsbucket, awsaccess, awssecret),
     backitup.make_upload_ftp(*ftplogin),
-    backitup.make_simplecopy(backupgdrive),
+    backitup.make_upload_local(backupgdrive),
     ]
 
 

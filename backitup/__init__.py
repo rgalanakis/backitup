@@ -1,3 +1,5 @@
+"""See README.txt for more information about how to use `backitup`."""
+
 import datetime
 import fnmatch
 import ftplib
@@ -14,6 +16,9 @@ import time
 import traceback
 import zipfile
 
+
+# NOTE: These constants should not be changed,
+# they are just used as default args.
 
 # Corresponds to allowZip64 default.
 ALLOWZIP64 = False
@@ -132,21 +137,23 @@ def create_archive(backupdir,
     :param backupdir: Folder to place the resulting backup.
     :param srcpaths: Paths to files or folders that contain the files to back
       up. Will scan folders recursively.
-    :param excludes: Wildcard match strings. Anything that matches any
-      pattern in excludes will not be included in the final archive,
-      **unless** it matches a pattern in `includes`.
-    :param includes: Wildcard match strings. Anything that matches
-      any pattern in includes will *always* be included in the final
-      archive, even if it matches a pattern in `excludes`.
-    :param arcname: Name of the archive (such as 'weeklybackup.zip'),
-      which must include the extension.
-    :param allow_zip_64: Corresponds to ZipFile's allowZip64.
+    :param maxbackups: Maximum number of backups to keep.
+      More backups than this will be pruned.
     :param more_backups: Collection of callables that will
       be invoked with the ZipFile object, after the main
       compression has run. This allows additional steps to
       run, which may generate and archive their own files.
       Mostly useful for backing up data that needs to be
       created on-the-fly, such as sql dumps.
+    :param arcname: Name of the archive (such as 'weeklybackup.zip'),
+      which must include the extension.
+    :param excludes: Wildcard match strings. Anything that matches any
+      pattern in excludes will not be included in the final archive,
+      **unless** it matches a pattern in `includes`.
+    :param includes: Wildcard match strings. Anything that matches
+      any pattern in includes will *always* be included in the final
+      archive, even if it matches a pattern in `excludes`.
+    :param allow_zip_64: Corresponds to ZipFile's allowZip64.
     """
     _prune_backups(backupdir, maxbackups)
     getfiles = lambda p: _get_files(p, excludes, includes)
@@ -161,7 +168,8 @@ def create_archive(backupdir,
     for func in more_backups:
         func(z)
     z.close()
-    log.info('Archive complete (%s bytes), finishing up.', os.path.getsize(arcpath))
+    log.info('Archive complete (%s bytes), finishing up.',
+        os.path.getsize(arcpath))
     z = zipfile.ZipFile(arcpath, allowZip64=allow_zip_64)
     map(_log_zipinfo, z.infolist())
     os.chmod(arcpath, stat.S_IREAD)
@@ -171,7 +179,12 @@ def create_archive(backupdir,
     return arcpath
 
 
-def make_backup_mysql(user, password, database, dumpexe=MYSQLDUMP, host='localhost'):
+def make_backup_mysql(user, password, database,
+                      dumpexe=MYSQLDUMP, host='localhost'):
+    """Returns a callable (for use with `create_archive`'s `more_backups`
+    argument) that will backup a MySQL database to a .sql file and add
+    it to the archive.
+    """
     if not os.path.exists(dumpexe):
         raise RuntimeError('%r does not exist.' % dumpexe)
     def backup_mysql(z):
@@ -194,6 +207,9 @@ def make_backup_mysql(user, password, database, dumpexe=MYSQLDUMP, host='localho
 
 
 def make_upload_ftp(host='', user='', passwd='', cwd=None):
+    """Returns a callable that takes a path to an archive and uploads
+    it to an ftp server using the provided data.
+    """
     def upload(arcpath):
         log.info('FTP: Uploading to %s:%s@%s: %s', user, passwd, host, arcpath)
         ftp = ftplib.FTP(host)
@@ -205,8 +221,12 @@ def make_upload_ftp(host='', user='', passwd='', cwd=None):
     return upload
 
 
-#noinspection PyUnresolvedReferences
 def make_upload_s3(bucket_name, aws_access_key_id, aws_secret_access_key):
+    """Returns a callable that takes a path to an archive and uploads
+    it to Amazon S3 using the provided data.
+
+    Note, this requires boto to be installed.
+    """
     import boto
     from boto.s3.key import Key
     def upload(arcpath):
@@ -222,7 +242,10 @@ def make_upload_s3(bucket_name, aws_access_key_id, aws_secret_access_key):
     return upload
 
 
-def make_simplecopy(dest):
+def make_upload_local(dest):
+    """Returns a callable that takes a path to an archive and copies
+    it to `dest` (folder or file, compatible with `shutil.copy`).
+    """
     def copy(arcpath):
         log.info('Copy: %s to %s', arcpath, dest)
         shutil.copy(arcpath, dest)
@@ -231,6 +254,13 @@ def make_simplecopy(dest):
 
 
 def upload_all(arcpath, *uploads):
+    """Given an archive path, and a collection of callables returned from
+    `make_upload_*` functions, performs each of them in parallel.
+
+    Will raise if there are any exceptions, after all threads have completed
+    (so only failed uploads will fail, uploads with no errors should
+    always complete successfully).
+    """
     log.info('Uploading %s to %s places.', arcpath, len(uploads))
     errs = []
     def upload(up):
@@ -239,6 +269,7 @@ def upload_all(arcpath, *uploads):
         except Exception:
             log.error(traceback.format_exc())
             errs.append(sys.exc_info())
+    # TODO: Look into using a pool's map.
     threads = []
     for u in uploads:
         t = threading.Thread(target=upload, args=[u])

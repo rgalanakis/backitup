@@ -6,6 +6,7 @@ setup(
     author = 'Rob Galanakis',
     author_email = 'rob.galanakis@gmail.com',
     url = 'http://code.google.com/p/backitup/',
+    download_url='http://pypi.python.org/pypi/backitup',
 
     packages = ['backitup'],
 
