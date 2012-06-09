@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name = 'backitup',
-    version = '0.9',
+    version = '0.9.5',
     author = 'Rob Galanakis',
     author_email = 'rob.galanakis@gmail.com',
     url = 'http://code.google.com/p/backitup/',
@@ -15,7 +15,7 @@ setup(
 
     license = "MIT",
     platforms = ['POSIX', 'Windows'],
-    keywords = ['encoding', 'i18n', 'xml'],
+    keywords = ['archive', 'backup', 'upload'],
     classifiers = [
         "Programming Language :: Python",
         "Operating System :: OS Independent",
