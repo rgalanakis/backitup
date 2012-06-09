@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name = 'backitup',
-    version = '0.9.5',
+    version = '0.9.6',
     author = 'Rob Galanakis',
     author_email = 'rob.galanakis@gmail.com',
     url = 'http://code.google.com/p/backitup/',

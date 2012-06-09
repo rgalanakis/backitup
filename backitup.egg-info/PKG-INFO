@@ -1,7 +1,7 @@
 Metadata-Version: 1.0
 Name: backitup
 Version: 0.9.5
-Summary: Simply library for easily customized backup and uploading of your files
+Summary: Simple library for easily customized backup and uploading of your files
 Home-page: http://code.google.com/p/backitup/
 Author: Rob Galanakis
 Author-email: rob.galanakis@gmail.com
