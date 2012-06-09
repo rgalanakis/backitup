@@ -10,7 +10,7 @@ setup(
     packages = ['backitup'],
 
     description = 'Simply library for easily customized backup and uploading of your files',
-    long_description = open('README.rst').read(),
+    long_description = open('README.txt').read(),
 
     license = "MIT",
     platforms = ['POSIX', 'Windows'],
