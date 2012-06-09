@@ -10,7 +10,7 @@ setup(
 
     packages = ['backitup'],
 
-    description = 'Simply library for easily customized backup and uploading of your files',
+    description = 'Simple library for easily customized backup and uploading of your files',
     long_description = open('README.txt').read(),
 
     license = "MIT",

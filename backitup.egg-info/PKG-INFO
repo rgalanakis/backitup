@@ -1,11 +1,12 @@
 Metadata-Version: 1.0
 Name: backitup
-Version: 0.9
+Version: 0.9.5
 Summary: Simply library for easily customized backup and uploading of your files
 Home-page: http://code.google.com/p/backitup/
 Author: Rob Galanakis
 Author-email: rob.galanakis@gmail.com
 License: MIT
+Download-URL: http://pypi.python.org/pypi/backitup
 Description: `backitup` is a module for easily backing up files.
         It is designed for ease of use for python programmers,
         by doing a few simple things clearly.
@@ -42,7 +43,7 @@ Description: `backitup` is a module for easily backing up files.
         unexpected race conditions, with regards to backup
         pruning, and myphp backup.
         
-Keywords: encoding,i18n,xml
+Keywords: archive,backup,upload
 Platform: POSIX
 Platform: Windows
 Classifier: Programming Language :: Python
